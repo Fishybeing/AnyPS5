@@ -323,12 +323,12 @@ int APS5_VABI memmove_s_nid_postfix(void* dest, size_t destsz, const void* src, 
 
 int APS5_VABI memset_s_nid_postfix(void* dest, size_t destsz, int value, size_t count) {
     constexpr int GuestEinval = 22;
-    constexpr int GuestErange = 34;
-    if (!dest) return GuestEinval;
+    constexpr size_t RsizeMax = SIZE_MAX >> 1;
+    if (!dest || destsz > RsizeMax || count > RsizeMax) return GuestEinval;
     const auto length = count > destsz ? destsz : count;
     auto* bytes = static_cast<volatile unsigned char*>(dest);
     for (size_t index = 0; index < length; ++index) bytes[index] = static_cast<unsigned char>(value);
-    return count > destsz ? GuestErange : 0;
+    return count > destsz ? GuestEinval : 0;
 }
 
 char* APS5_VABI strnstr_nid_postfix(const char* haystack, const char* needle, size_t length) {
